@@ -1,45 +1,13 @@
-# Netlify configuration for Vite React Personal Trainer App
+# Diagnostic Netlify config — wypisze node version, używa npm ci
 [build]
-  command = "npm ci && npm run build"
+  command = "node -v && npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
+  # Wymuś Node 20.x — Netlify rozpoznaje tu wartości typu "20" lub "20.19.0"
   NODE_VERSION = "20"
-  NPM_FLAGS = "--production=false"
-  CI = "true"
 
-[dev]
-  command = "npm run dev"
-  port = 3000
-
-# SPA routing - redirect all routes to index.html for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Security headers for better performance and security
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-
-# Cache static assets for better performance
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# Cache HTML files with shorter duration
-[[headers]]
-  for = "/*.html"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-# Environment variables (for production)
-[context.production.environment]
-  NODE_ENV = "production"
