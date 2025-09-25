@@ -43,7 +43,3 @@
 # Environment variables (for production)
 [context.production.environment]
   NODE_ENV = "production"
-
-# Build settings
-[build.environment]
-  NODE_VERSION = "18"
