@@ -1,7 +1,11 @@
 # Netlify configuration for Vite React Personal Trainer App
 [build]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--production=false"
 
 [dev]
   command = "npm run dev"

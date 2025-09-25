@@ -60,7 +60,6 @@ const SocialLinkItem: React.FC<SocialLinkItemProps> = ({ name, Icon, href }) => 
             >
                 <Icon 
                     className="w-6 h-6 text-yellow-500 transition-transform duration-300 group-hover:scale-110" 
-                    style={{ transform: 'translateZ(20px)' }} 
                 />
                 
                 <span className="absolute left-full ml-4 px-3 py-1.5 text-sm font-semibold text-white bg-black/60 backdrop-blur-md border border-white/20 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none translate-x-[-10px] group-hover:translate-x-0">
