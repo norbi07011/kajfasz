@@ -101,7 +101,7 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                             <input type="email" name="email" placeholder={t('diet_modal.placeholders.email')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                             <input type="tel" name="phone" placeholder={t('diet_modal.placeholders.phone')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                             <input type="text" name="birthDate" placeholder={t('diet_modal.placeholders.birthDate')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onFocus={(e) => (e.target.type = 'date')} onBlur={(e) => (e.target.type = 'text')}/>
-                            <select name="gender" className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="gender" className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz płeć">
                                 <option value="">{t('diet_modal.placeholders.gender')}</option>
                                 <option value={t('diet_modal.options.gender.male')}>{t('diet_modal.options.gender.male')}</option>
                                 <option value={t('diet_modal.options.gender.female')}>{t('diet_modal.options.gender.female')}</option>
@@ -138,7 +138,7 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                      {/* Section 3 */}
                      <div className="space-y-4">
                         <h3 className="font-bold uppercase text-red-500">{t('diet_modal.sections.diet_choice')}</h3>
-                        <select name="dietType" className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                        <select name="dietType" className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz typ diety">
                            {Object.keys(t('diet_modal.options.dietType') as object).map(key => <option key={key} value={t(`diet_modal.options.dietType.${key}`)}>{t(`diet_modal.options.dietType.${key}`)}</option>)}
                         </select>
                     </div>

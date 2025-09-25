@@ -143,7 +143,7 @@ const BookingSection: React.FC = () => {
                                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                 </div>
                                 <input type="tel" name="phone" placeholder={t('booking.form.placeholders.phone')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3 focus:ring-red-500 focus:border-red-500" value={formData.phone} onChange={handleInputChange} />
-                                <select name="level" className="w-full bg-[#333] border-gray-600 rounded-lg p-3 focus:ring-red-500 focus:border-red-500" value={formData.level} onChange={handleInputChange}>
+                                <select name="level" className="w-full bg-[#333] border-gray-600 rounded-lg p-3 focus:ring-red-500 focus:border-red-500" value={formData.level} onChange={handleInputChange} aria-label="Wybierz poziom zaawansowania">
                                     <option value="beginner">{t('booking.form.levels.beginner')}</option>
                                     <option value="intermediate">{t('booking.form.levels.intermediate')}</option>
                                     <option value="advanced">{t('booking.form.levels.advanced')}</option>
