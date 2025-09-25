@@ -27,5 +27,7 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["*.ts", "*.tsx", "components/**/*", "contexts/**/*", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
 }
