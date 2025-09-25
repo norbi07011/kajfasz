@@ -115,22 +115,22 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                             <input type="number" name="height" placeholder={t('diet_modal.placeholders.height')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                             <input type="number" name="weight" placeholder={t('diet_modal.placeholders.weight')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                             <input type="number" name="bodyFat" placeholder={t('diet_modal.placeholders.bodyFat')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
-                            <select name="activity" value={formData.activity} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="activity" value={formData.activity} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz poziom aktywności fizycznej">
                                 {Object.keys(t('diet_modal.options.activity') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.activity.${key}`)}</option>)}
                             </select>
-                            <select name="goal" value={formData.goal} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="goal" value={formData.goal} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz cel treningowy">
                                 {Object.keys(t('diet_modal.options.goal') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.goal.${key}`)}</option>)}
                             </select>
-                            <select name="pace" value={formData.pace} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="pace" value={formData.pace} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz tempo realizacji celu">
                                {Object.keys(t('diet_modal.options.pace') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.pace.${key}`)}</option>)}
                             </select>
                         </div>
                         <div className="grid md:grid-cols-3 gap-4">
-                            <select name="trainingExperience" value={formData.trainingExperience} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="trainingExperience" value={formData.trainingExperience} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz doświadczenie treningowe">
                                 {Object.keys(t('diet_modal.options.trainingExperience') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.trainingExperience.${key}`)}</option>)}
                             </select>
                             <input type="number" name="trainingFrequency" placeholder={t('diet_modal.placeholders.trainingFrequency')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
-                            <select name="trainingType" value={formData.trainingType} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                            <select name="trainingType" value={formData.trainingType} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz rodzaj treningu">
                                {Object.keys(t('diet_modal.options.trainingType') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.trainingType.${key}`)}</option>)}
                             </select>
                         </div>
@@ -158,10 +158,10 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                              <input type="text" name="healthInfo" placeholder={t('diet_modal.placeholders.healthInfo')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                              <input type="text" name="medications" placeholder={t('diet_modal.placeholders.medications')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                              <input type="text" name="hydration" placeholder={t('diet_modal.placeholders.hydration')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
-                             <select name="sleepQuality" value={formData.sleepQuality} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="sleepQuality" value={formData.sleepQuality} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Oceń jakość snu">
                                {Object.keys(t('diet_modal.options.sleepQuality') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.sleepQuality.${key}`)}</option>)}
                             </select>
-                             <select name="stressLevel" value={formData.stressLevel} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="stressLevel" value={formData.stressLevel} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Oceń poziom stresu">
                                 {Object.keys(t('diet_modal.options.stressLevel') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.stressLevel.${key}`)}</option>)}
                             </select>
                         </div>
@@ -170,22 +170,22 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                     <div className="space-y-4">
                         <h3 className="font-bold uppercase text-red-500">{t('diet_modal.sections.dietary_habits')}</h3>
                         <div className="grid md:grid-cols-3 gap-4">
-                             <select name="eatingHabits" value={formData.eatingHabits} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="eatingHabits" value={formData.eatingHabits} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz nawyki żywieniowe">
                                {Object.keys(t('diet_modal.options.eatingHabits') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.eatingHabits.${key}`)}</option>)}
                             </select>
-                             <select name="cookingSkills" value={formData.cookingSkills} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="cookingSkills" value={formData.cookingSkills} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz umiejętności kulinarne">
                                 {Object.keys(t('diet_modal.options.cookingSkills') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.cookingSkills.${key}`)}</option>)}
                             </select>
-                             <select name="foodPrepTime" value={formData.foodPrepTime} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="foodPrepTime" value={formData.foodPrepTime} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz czas przygotowania posiłków">
                                 {Object.keys(t('diet_modal.options.foodPrepTime') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.foodPrepTime.${key}`)}</option>)}
                             </select>
                         </div>
                          <div className="grid md:grid-cols-2 gap-4">
-                              <select name="sweetSnacks" value={formData.sweetSnacks} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                              <select name="sweetSnacks" value={formData.sweetSnacks} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Częstotliwość słodkich przekąsek">
                                 <option disabled>{t('diet_modal.options.snackPrefs.title_sweet')}</option>
                                 {Object.keys(t('diet_modal.options.snackPrefs') as object).filter(k=>k.startsWith('t_')).map(key => <option key={key} value={key.substring(2)}>{t(`diet_modal.options.snackPrefs.${key}`)}</option>)}
                             </select>
-                             <select name="saltySnacks" value={formData.saltySnacks} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="saltySnacks" value={formData.saltySnacks} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Częstotliwość słonych przekąsek">
                                 <option disabled>{t('diet_modal.options.snackPrefs.title_salty')}</option>
                                 {Object.keys(t('diet_modal.options.snackPrefs') as object).filter(k=>k.startsWith('t_')).map(key => <option key={key} value={key.substring(2)}>{t(`diet_modal.options.snackPrefs.${key}`)}</option>)}
                             </select>
@@ -208,7 +208,7 @@ const DietModal: React.FC<DietModalProps> = ({ isOpen, onClose }) => {
                          <div className="grid md:grid-cols-3 gap-4">
                             <input type="number" name="mealsPerDay" value={formData.mealsPerDay} placeholder={t('diet_modal.placeholders.mealsPerDay')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
                             <input type="text" name="mealTimes" placeholder={t('diet_modal.placeholders.mealTimes')} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} />
-                             <select name="budget" value={formData.budget} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange}>
+                             <select name="budget" value={formData.budget} className="w-full bg-[#333] border-gray-600 rounded-lg p-3" onChange={handleInputChange} aria-label="Wybierz budżet na żywność">
                                 {Object.keys(t('diet_modal.options.budget') as object).map(key => <option key={key} value={key}>{t(`diet_modal.options.budget.${key}`)}</option>)}
                             </select>
                          </div>

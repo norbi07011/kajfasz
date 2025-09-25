@@ -114,7 +114,7 @@ const BookingSection: React.FC = () => {
                                <button onClick={() => changeMonth(1)}>&gt;</button>
                            </div>
                            <div className="grid grid-cols-7 gap-1 text-sm text-gray-400 mb-2">
-                               {t('booking.calendar.days').split(',').map(d => <div key={d} className="text-center font-semibold">{d}</div>)}
+                               {t('booking.calendar.days').split(',').map((d: string) => <div key={d} className="text-center font-semibold">{d}</div>)}
                            </div>
                            <div className="grid grid-cols-7 gap-1">{generateCalendar()}</div>
                         </div>
