@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-to" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kajfasz - Trener Personalny</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #111111;
+        color: #f0f0f0;
+        font-family: 'Inter', sans-serif;
+      }
+      .bg-image-hero {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://picsum.photos/seed/fighter/1920/1080');
+        background-size: cover;
+        background-position: center;
+      }
+      .carousel-container {
+        perspective: 1500px;
+      }
+      .carousel {
+        transform-style: preserve-3d;
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+      .carousel-item {
+        position: absolute;
+        backface-visibility: hidden;
+        transition: opacity 0.8s, transform 0.8s;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      }
+      .offer-card-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(220, 38, 38, 0.25), transparent 40%);
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: 0;
+      }
+      .offer-card-container:hover .offer-card-content::before {
+        opacity: 1;
+      }
+      .about-card-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(220, 38, 38, 0.15), transparent 40%);
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: 0;
+      }
+      .about-card-container:hover .about-card-content::before {
+        opacity: 1;
+      }
+      .social-link-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(150px circle at var(--mouse-x) var(--mouse-y), rgba(234, 179, 8, 0.2), transparent 80%);
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: -1;
+      }
+      .social-link-container:hover .social-link-content::before {
+        opacity: 1;
+      }
+      /* New styles for Dashboard */
+      .dashboard-bg-new {
+        background-color: #4A3F9A;
+      }
+      .btn-purple-grad {
+        background-image: linear-gradient(to right, #8B5CF6 0%, #6366F1 100%);
+        transition: 0.5s;
+        background-size: 200% auto;
+        color: white;
+      }
+      .btn-purple-grad:hover {
+        background-position: right center; /* change the direction of the change here */
+      }
+       /* Styles for new Crypto-style Chart */
+      .crypto-chart-line {
+        stroke-width: 2;
+        fill: none;
+        stroke: #a78bfa; /* lighter purple */
+        filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.6));
+      }
+      .crypto-chart-area {
+        opacity: 0.2;
+      }
+      .crypto-chart-grid {
+        stroke: rgba(100, 116, 139, 0.15);
+        stroke-dasharray: 2 3;
+      }
+      .crypto-chart-point {
+        stroke-width: 2px;
+        stroke: #1E202B; /* Card background color */
+        transition: r 0.2s ease;
+      }
+      .crypto-chart-point-increase { fill: #4ade80; } /* green-400 */
+      .crypto-chart-point-decrease { fill: #f87171; } /* red-400 */
+      .crypto-chart-point-neutral { fill: #c4b5fd; } /* violet-300 */
+
+      .crypto-chart-hover-area:hover ~ .crypto-chart-point {
+          r: 6;
+      }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Teko:wght@700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
