@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trainer {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // hashed
+  role      String   @default("trainer")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  clients        Client[]
+  workoutPlans   WorkoutPlan[]
+  nutritionPlans NutritionPlan[]
+
+  @@map("trainers")
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  trainerId String   @map("trainer_id")
+  
+  // Personal Info
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  email             String?
+  phone             String?
+  dateOfBirth       DateTime? @map("date_of_birth")
+  gender            String?
+  height            Float?    // cm
+  medicalConditions Json?     @map("medical_conditions")
+  emergencyContact  Json?     @map("emergency_contact")
+  
+  // Goals
+  primaryGoal         String    @map("primary_goal")
+  targetWeight        Float?    @map("target_weight")
+  targetDate          DateTime? @map("target_date")
+  motivations         Json?
+  experience          String
+  availableTime       Int       @map("available_time") // sessions per week
+  preferredActivities Json?     @map("preferred_activities")
+  
+  // Status
+  status       String    @default("active") // active, inactive, paused
+  joinDate     DateTime  @default(now()) @map("join_date")
+  lastActivity DateTime? @map("last_activity")
+  notes        String?
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  trainer        Trainer             @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  measurements   MeasurementRecord[]
+  workoutPlans   WorkoutPlan[]
+  nutritionPlans NutritionPlan[]
+
+  @@map("clients")
+}
+
+model MeasurementRecord {
+  id       String   @id @default(uuid())
+  clientId String   @map("client_id")
+  date     DateTime @default(now())
+  
+  // Measurements
+  weight     Float?
+  bodyFat    Float? @map("body_fat")
+  muscleMass Float? @map("muscle_mass")
+  
+  // Body measurements (JSON)
+  measurements Json? // chest, waist, hips, bicep, thigh
+  
+  // Photos
+  photos Json? // front, side, back URLs
+  
+  notes      String?
+  recordedBy String  @map("recorded_by") // trainer ID
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("measurement_records")
+}
+
+model WorkoutPlan {
+  id        String   @id @default(uuid())
+  clientId  String   @map("client_id")
+  trainerId String   @map("trainer_id")
+  
+  name            String
+  description     String?
+  duration        Int     // weeks
+  sessionsPerWeek Int     @map("sessions_per_week")
+  exercises       Json    // array of exercises
+  notes           String?
+  isActive        Boolean @default(true) @map("is_active")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@map("workout_plans")
+}
+
+model NutritionPlan {
+  id        String   @id @default(uuid())
+  clientId  String   @map("client_id")
+  trainerId String   @map("trainer_id")
+  
+  dailyCalories Int     @map("daily_calories")
+  macros        Json    // protein, carbs, fats
+  meals         Json    // array of meals
+  restrictions  Json?   // dietary restrictions
+  notes         String?
+  isActive      Boolean @default(true) @map("is_active")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@map("nutrition_plans")
+}

@@ -12,6 +12,8 @@ import Footer from './components/Footer';
 import MultiStepDietModal from './components/MultiStepDietModal';
 import TrainerDashboard from './components/TrainerDashboard';
 import AdvancedDashboard from './components/AdvancedDashboard';
+import TrainerLoginModal from './components/TrainerLoginModal';
+import ProtectedTrainerRoute from './components/ProtectedTrainerRoute';
 import { useLanguage, useAuth, UserGoals, Goal, User } from './contexts/LanguageContext';
 import SocialLinks from './components/SocialLinks';
 import { CloseIcon, AnalyticsIcon, ChevronRightIcon, ListIcon } from './components/icons';
@@ -478,6 +480,7 @@ const App: React.FC = () => {
     const { currentUser } = useAuth();
     const [isDietModalOpen, setDietModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isTrainerLoginModalOpen, setIsTrainerLoginModalOpen] = useState(false);
     const [isTrainerDashboardOpen, setIsTrainerDashboardOpen] = useState(false);
     const [isAdvancedDashboardOpen, setIsAdvancedDashboardOpen] = useState(false);
     const [view, setView] = useState<'landing' | 'dashboard'>('landing');
@@ -517,6 +520,7 @@ const App: React.FC = () => {
                 scrollTo={scrollTo} 
                 onLoginClick={() => setIsAuthModalOpen(true)}
                 onDashboardClick={() => setIsAdvancedDashboardOpen(true)}
+                onTrainerLoginClick={() => setIsTrainerLoginModalOpen(true)}
                 onTrainerDashboardClick={() => setIsTrainerDashboardOpen(true)}
                 onHomeClick={() => setView('landing')}
             />
@@ -536,9 +540,42 @@ const App: React.FC = () => {
            
             <Footer />
             <MultiStepDietModal isOpen={isDietModalOpen} onClose={() => setDietModalOpen(false)} />
-            <TrainerDashboard isOpen={isTrainerDashboardOpen} onClose={() => setIsTrainerDashboardOpen(false)} />
-            <AdvancedDashboard isOpen={isAdvancedDashboardOpen} onClose={() => setIsAdvancedDashboardOpen(false)} />
+            <ProtectedTrainerRoute 
+                fallback={<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg text-center text-black">
+                        <h2 className="text-xl font-bold mb-4">Brak autoryzacji</h2>
+                        <p className="mb-4">Musisz być zalogowany jako trener aby uzyskać dostęp do panelu.</p>
+                        <button 
+                            onClick={() => {
+                                setIsTrainerDashboardOpen(false);
+                                setIsAdvancedDashboardOpen(false);
+                                setIsTrainerLoginModalOpen(true);
+                            }}
+                            className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
+                        >
+                            Zaloguj się
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setIsTrainerDashboardOpen(false);
+                                setIsAdvancedDashboardOpen(false);
+                            }}
+                            className="bg-gray-600 text-white px-4 py-2 rounded"
+                        >
+                            Zamknij
+                        </button>
+                    </div>
+                </div>}
+            >
+                <TrainerDashboard isOpen={isTrainerDashboardOpen} onClose={() => setIsTrainerDashboardOpen(false)} />
+                <AdvancedDashboard isOpen={isAdvancedDashboardOpen} onClose={() => setIsAdvancedDashboardOpen(false)} />
+            </ProtectedTrainerRoute>
             {isAuthModalOpen && !currentUser && <AuthModal onClose={() => setIsAuthModalOpen(false)} />}
+            {isTrainerLoginModalOpen && <TrainerLoginModal 
+                isOpen={isTrainerLoginModalOpen} 
+                onClose={() => setIsTrainerLoginModalOpen(false)} 
+                onSuccess={() => setIsTrainerLoginModalOpen(false)} 
+            />}
         </div>
     );
 };

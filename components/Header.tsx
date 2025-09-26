@@ -13,15 +13,16 @@ interface HeaderProps {
     onLoginClick: () => void;
     onDashboardClick: () => void;
     onTrainerDashboardClick: () => void;
+    onTrainerLoginClick: () => void;
     onHomeClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ navLinks, scrollTo, onLoginClick, onDashboardClick, onTrainerDashboardClick, onHomeClick }) => {
+const Header: React.FC<HeaderProps> = ({ navLinks, scrollTo, onLoginClick, onDashboardClick, onTrainerDashboardClick, onTrainerLoginClick, onHomeClick }) => {
     const [scrolled, setScrolled] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { language, setLanguage, t } = useLanguage();
-    const { currentUser, logout } = useAuth();
+    const { currentUser, currentTrainer, logout, trainerLogout } = useAuth();
 
     const languages: { key: Language, label: string }[] = [
         { key: 'pl', label: 'PL' },
@@ -100,11 +101,28 @@ const Header: React.FC<HeaderProps> = ({ navLinks, scrollTo, onLoginClick, onDas
                              {currentUser ? (
                                 <>
                                     <button onClick={onDashboardClick} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">{t('header.nav.dashboard')}</button>
-                                    <button onClick={onTrainerDashboardClick} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">Panel Trenera</button>
+                                    {currentTrainer ? (
+                                        <>
+                                            <button onClick={onTrainerDashboardClick} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">Panel Trenera</button>
+                                            <button onClick={() => { trainerLogout(); }} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300 text-sm">Wyloguj T</button>
+                                        </>
+                                    ) : (
+                                        <button onClick={onTrainerLoginClick} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">Loguj Trener</button>
+                                    )}
                                     <button onClick={handleLogout} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">{t('header.nav.logout')}</button>
                                 </>
                             ) : (
-                                <button onClick={onLoginClick} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">{t('header.nav.login')}</button>
+                                <>
+                                    <button onClick={onLoginClick} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-sm">{t('header.nav.login')}</button>
+                                    {currentTrainer ? (
+                                        <>
+                                            <button onClick={onTrainerDashboardClick} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300 text-sm">Panel T</button>
+                                            <button onClick={() => { trainerLogout(); }} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300 text-sm">Wyloguj T</button>
+                                        </>
+                                    ) : (
+                                        <button onClick={onTrainerLoginClick} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300 text-sm">Trener</button>
+                                    )}
+                                </>
                             )}
                         </div>
 
@@ -148,10 +166,28 @@ const Header: React.FC<HeaderProps> = ({ navLinks, scrollTo, onLoginClick, onDas
                     {currentUser ? (
                          <>
                             <button onClick={handleDashboardClick} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">{t('header.nav.dashboard')}</button>
+                            {currentTrainer ? (
+                                <>
+                                    <button onClick={() => { onTrainerDashboardClick(); setMobileMenuOpen(false); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Panel Trenera</button>
+                                    <button onClick={() => { trainerLogout(); setMobileMenuOpen(false); }} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Wyloguj Trenera</button>
+                                </>
+                            ) : (
+                                <button onClick={() => { onTrainerLoginClick(); setMobileMenuOpen(false); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Loguj jako Trener</button>
+                            )}
                             <button onClick={handleLogout} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">{t('header.nav.logout')}</button>
                          </>
                     ) : (
-                         <button onClick={() => { onLoginClick(); setMobileMenuOpen(false); }} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">{t('header.nav.login')}</button>
+                         <>
+                            <button onClick={() => { onLoginClick(); setMobileMenuOpen(false); }} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">{t('header.nav.login')}</button>
+                            {currentTrainer ? (
+                                <>
+                                    <button onClick={() => { onTrainerDashboardClick(); setMobileMenuOpen(false); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Panel Trenera</button>
+                                    <button onClick={() => { trainerLogout(); setMobileMenuOpen(false); }} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Wyloguj Trenera</button>
+                                </>
+                            ) : (
+                                <button onClick={() => { onTrainerLoginClick(); setMobileMenuOpen(false); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-lg">Loguj jako Trener</button>
+                            )}
+                         </>
                     )}
                 </div>
             </div>

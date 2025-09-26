@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AnalyticsIcon, ListIcon, CloseIcon, ChevronRightIcon } from './icons';
+import ClientManagement from './ClientManagement';
 
 interface ClientData {
     name: string;
@@ -68,6 +69,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
     const [selectedClient, setSelectedClient] = useState<ClientData | null>(null);
     const [showTrainingPlanForm, setShowTrainingPlanForm] = useState(false);
     const [showDietPlanForm, setShowDietPlanForm] = useState(false);
+    const [isClientManagementOpen, setIsClientManagementOpen] = useState(false);
 
     // Load clients data from localStorage
     useEffect(() => {
@@ -519,6 +521,17 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                 <AnalyticsIcon className="w-5 h-5 mr-3" />
                                 Statystyki
                             </button>
+                            <button
+                                onClick={() => setIsClientManagementOpen(true)}
+                                className="w-full flex items-center px-4 py-3 rounded-lg transition-colors text-gray-300 hover:bg-gray-700 border border-blue-600 hover:border-blue-500"
+                            >
+                                <ListIcon className="w-5 h-5 mr-3" />
+                                <div className="flex flex-col items-start">
+                                    <span className="font-medium">Zarządzaj Klientami</span>
+                                    <span className="text-xs text-blue-400">Nowy system!</span>
+                                </div>
+                                <ChevronRightIcon className="w-4 h-4 ml-auto" />
+                            </button>
                         </nav>
                     </div>
 
@@ -750,6 +763,12 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                     </div>
                 </div>
             </div>
+
+            {/* ClientManagement Modal */}
+            <ClientManagement 
+                isOpen={isClientManagementOpen} 
+                onClose={() => setIsClientManagementOpen(false)} 
+            />
         </div>
     );
 };
