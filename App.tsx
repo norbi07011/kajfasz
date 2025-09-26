@@ -16,6 +16,7 @@ import TrainerLoginModal from './components/TrainerLoginModal';
 import UnifiedLoginModal from './components/UnifiedLoginModal';
 import ProtectedTrainerRoute from './components/ProtectedTrainerRoute';
 import ApiTestComponent from './components/ApiTestComponent';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useLanguage, useAuth, UserGoals, Goal, User } from './contexts/LanguageContext';
 import SocialLinks from './components/SocialLinks';
 import { CloseIcon, AnalyticsIcon, ChevronRightIcon, ListIcon } from './components/icons';
@@ -422,32 +423,34 @@ const App: React.FC = () => {
            
             <Footer />
             <MultiStepDietModal isOpen={isDietModalOpen} onClose={() => setDietModalOpen(false)} />
-            {/* Trainer Dashboard Modal */}
-            <ProtectedTrainerRoute 
-                fallback={<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-[#1a1a1a] p-6 rounded-lg text-center border border-gray-700">
-                        <h2 className="text-xl font-bold mb-4 text-white">Brak autoryzacji</h2>
-                        <p className="mb-4 text-gray-300">Musisz być zalogowany jako trener aby uzyskać dostęp do panelu zarządzania.</p>
-                        <button 
-                            onClick={() => {
-                                setIsTrainerDashboardOpen(false);
-                                setIsLoginModalOpen(true);
-                            }}
-                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mr-2 transition-colors"
-                        >
-                            Zaloguj jako trener
-                        </button>
-                        <button 
-                            onClick={() => setIsTrainerDashboardOpen(false)}
-                            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
-                        >
-                            Zamknij
-                        </button>
-                    </div>
-                </div>}
-            >
-                <TrainerDashboard isOpen={isTrainerDashboardOpen} onClose={() => setIsTrainerDashboardOpen(false)} />
-            </ProtectedTrainerRoute>
+            {/* Trainer Dashboard Modal - tylko gdy ma być otwarty */}
+            {isTrainerDashboardOpen && (
+                <ProtectedTrainerRoute 
+                    fallback={<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-[#1a1a1a] p-6 rounded-lg text-center border border-gray-700">
+                            <h2 className="text-xl font-bold mb-4 text-white">Brak autoryzacji</h2>
+                            <p className="mb-4 text-gray-300">Musisz być zalogowany jako trener aby uzyskać dostęp do panelu zarządzania.</p>
+                            <button 
+                                onClick={() => {
+                                    setIsTrainerDashboardOpen(false);
+                                    setIsLoginModalOpen(true);
+                                }}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mr-2 transition-colors"
+                            >
+                                Zaloguj jako trener
+                            </button>
+                            <button 
+                                onClick={() => setIsTrainerDashboardOpen(false)}
+                                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
+                            >
+                                Zamknij
+                            </button>
+                        </div>
+                    </div>}
+                >
+                    <TrainerDashboard isOpen={isTrainerDashboardOpen} onClose={() => setIsTrainerDashboardOpen(false)} />
+                </ProtectedTrainerRoute>
+            )}
             <UnifiedLoginModal 
                 isOpen={isLoginModalOpen} 
                 onClose={() => setIsLoginModalOpen(false)} 

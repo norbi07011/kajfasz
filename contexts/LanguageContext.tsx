@@ -262,6 +262,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         createdAt: new Date('2024-01-01')
     };
 
+    // Domyślni testowi klienci
+    const DEFAULT_CLIENTS = [
+        {
+            email: 'test@klient.pl',
+            password: 'test123',
+            name: 'Test Klient',
+            goals: {
+                weight: { current: 75, goal: 70, history: [{ date: new Date().toISOString(), value: 75 }] },
+                pushups: { current: 15, goal: 30, history: [{ date: new Date().toISOString(), value: 15 }] },
+                pullups: { current: 5, goal: 15, history: [{ date: new Date().toISOString(), value: 5 }] },
+                runDistance: { current: 3, goal: 8, history: [{ date: new Date().toISOString(), value: 3 }] },
+                runTime: { current: 30, goal: 25, history: [{ date: new Date().toISOString(), value: 30 }] },
+                boxingDuration: { current: 5, goal: 15, history: [{ date: new Date().toISOString(), value: 5 }] },
+            }
+        },
+        {
+            email: 'anna@test.pl',
+            password: 'anna123',
+            name: 'Anna Kowalska',
+            goals: {
+                weight: { current: 65, goal: 60, history: [{ date: new Date().toISOString(), value: 65 }] },
+                pushups: { current: 10, goal: 25, history: [{ date: new Date().toISOString(), value: 10 }] },
+                pullups: { current: 2, goal: 10, history: [{ date: new Date().toISOString(), value: 2 }] },
+                runDistance: { current: 2, goal: 6, history: [{ date: new Date().toISOString(), value: 2 }] },
+                runTime: { current: 35, goal: 28, history: [{ date: new Date().toISOString(), value: 35 }] },
+                boxingDuration: { current: 3, goal: 12, history: [{ date: new Date().toISOString(), value: 3 }] },
+            }
+        }
+    ];
+
     // Inicjalizuj domyślne konto trenera przy pierwszym uruchomieniu
     useEffect(() => {
         const trainerExists = localStorage.getItem(`trainer_${DEFAULT_TRAINER.email}`);
@@ -276,22 +306,58 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, []);
 
+    // Inicjalizuj domyślnych testowych klientów
+    useEffect(() => {
+        DEFAULT_CLIENTS.forEach(client => {
+            const userExists = localStorage.getItem(`user_${client.email}`);
+            const accountExists = localStorage.getItem(`account_${client.email}`);
+            
+            if (!userExists || !accountExists) {
+                console.log(`🔧 Tworzenie testowego klienta: ${client.email}`);
+                localStorage.setItem(`user_${client.email}`, JSON.stringify({
+                    name: client.name,
+                    email: client.email,
+                    goals: client.goals
+                }));
+                localStorage.setItem(`account_${client.email}`, JSON.stringify({
+                    email: client.email,
+                    password: client.password
+                }));
+            }
+        });
+    }, []);
+
     const login = (email: string, password: string): boolean => {
+        console.log(`🔍 Próba logowania klienta: ${email}`);
         try {
             const accountData = localStorage.getItem(`account_${email}`);
-            if (!accountData) return false;
+            console.log(`📊 Dane konta znalezione:`, !!accountData);
+            if (!accountData) {
+                console.log(`❌ Brak konta dla: ${email}`);
+                return false;
+            }
 
             const userAccount = JSON.parse(accountData);
-            if (userAccount.password !== password) return false;
+            console.log(`🔐 Sprawdzanie hasła...`);
+            if (userAccount.password !== password) {
+                console.log(`❌ Nieprawidłowe hasło dla: ${email}`);
+                return false;
+            }
             
             const userData = localStorage.getItem(`user_${email}`);
-            if (!userData) return false;
+            console.log(`👤 Dane użytkownika znalezione:`, !!userData);
+            if (!userData) {
+                console.log(`❌ Brak danych użytkownika dla: ${email}`);
+                return false;
+            }
 
-            setCurrentUser(JSON.parse(userData));
+            const user = JSON.parse(userData);
+            setCurrentUser(user);
             localStorage.setItem('loggedInUser', email);
+            console.log(`✅ Logowanie udane dla: ${email}`);
             return true;
         } catch (error) {
-            console.error("Login failed", error);
+            console.error("❌ Login failed", error);
             return false;
         }
     };
