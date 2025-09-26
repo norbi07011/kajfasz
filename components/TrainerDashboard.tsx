@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage, useAuth } from '../contexts/LanguageContext';
 import { AnalyticsIcon, ListIcon, CloseIcon, ChevronRightIcon } from './icons';
 import ClientManagement from './ClientManagement';
-
-interface ClientData {
-    name: string;
-    email: string;
-    goals: any;
-    registrationDate: string;
-    lastActive: string;
-    trainingPlan?: TrainingPlan;
-    dietPlan?: DietPlan;
-}
+import { useClients } from '../src/hooks/useClients';
+import { ClientData } from '../src/api/types';
 
 interface Exercise {
     id: string;
@@ -64,48 +56,23 @@ interface TrainerDashboardProps {
 
 const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) => {
     const { t } = useLanguage();
+    const { currentTrainer } = useAuth();
+    
+    // React Query hook for fetching clients
+    const { data: clients = [], isLoading: clientsLoading, error: clientsError } = useClients(currentTrainer?.id);
+    
     const [activeTab, setActiveTab] = useState('clients');
-    const [clients, setClients] = useState<ClientData[]>([]);
     const [selectedClient, setSelectedClient] = useState<ClientData | null>(null);
     const [showTrainingPlanForm, setShowTrainingPlanForm] = useState(false);
     const [showDietPlanForm, setShowDietPlanForm] = useState(false);
     const [isClientManagementOpen, setIsClientManagementOpen] = useState(false);
 
     // Load clients data from localStorage
+    // Effect to handle component opening
     useEffect(() => {
-        if (isOpen) {
-            loadClientsData();
-        }
+        // React Query automatically handles data fetching when component mounts
+        // No manual data loading needed
     }, [isOpen]);
-
-    const loadClientsData = () => {
-        const clientsData: ClientData[] = [];
-        
-        // Iterate through localStorage to find user data
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('user_')) {
-                try {
-                    const userData = JSON.parse(localStorage.getItem(key) || '');
-                    if (userData.name && userData.email) {
-                        clientsData.push({
-                            name: userData.name,
-                            email: userData.email,
-                            goals: userData.goals,
-                            registrationDate: new Date().toISOString().split('T')[0], // Mock data
-                            lastActive: new Date().toISOString().split('T')[0],
-                            trainingPlan: getTrainingPlan(userData.email),
-                            dietPlan: getDietPlan(userData.email)
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error parsing client data:', error);
-                }
-            }
-        }
-        
-        setClients(clientsData);
-    };
 
     const getTrainingPlan = (email: string): TrainingPlan | undefined => {
         const planData = localStorage.getItem(`trainingPlan_${email}`);
@@ -119,12 +86,12 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
 
     const saveTrainingPlan = (clientEmail: string, plan: TrainingPlan) => {
         localStorage.setItem(`trainingPlan_${clientEmail}`, JSON.stringify(plan));
-        loadClientsData(); // Refresh data
+        // TODO: Implement API integration for training plans
     };
 
     const saveDietPlan = (clientEmail: string, plan: DietPlan) => {
         localStorage.setItem(`dietPlan_${clientEmail}`, JSON.stringify(plan));
-        loadClientsData(); // Refresh data
+        // TODO: Implement API integration for diet plans
     };
 
     const TrainingPlanForm: React.FC<{ client: ClientData; onSave: (plan: TrainingPlan) => void; onCancel: () => void }> = ({ client, onSave, onCancel }) => {
@@ -196,7 +163,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
 
         return (
             <div className="space-y-6">
-                <h3 className="text-xl font-bold text-red-500">Nowy Plan Treningowy dla {client.name}</h3>
+                <h3 className="text-xl font-bold text-red-500">Nowy Plan Treningowy dla {client.personalInfo.firstName} {client.personalInfo.lastName}</h3>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                     <input
@@ -370,7 +337,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
 
         return (
             <div className="space-y-6">
-                <h3 className="text-xl font-bold text-red-500">Nowy Plan Dietetyczny dla {client.name}</h3>
+                <h3 className="text-xl font-bold text-red-500">Nowy Plan Dietetyczny dla {client.personalInfo.firstName} {client.personalInfo.lastName}</h3>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                     <input
@@ -539,36 +506,50 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                     <div className="flex-1 p-6 overflow-y-auto">
                         {activeTab === 'clients' && (
                             <div>
-                                {!selectedClient && !showTrainingPlanForm && !showDietPlanForm && (
+                                {clientsLoading && (
+                                    <div className="text-center py-12">
+                                        <p className="text-gray-400">Ładowanie klientów...</p>
+                                    </div>
+                                )}
+                                
+                                {clientsError && (
+                                    <div className="text-center py-12">
+                                        <p className="text-red-400">Błąd ładowania klientów: {clientsError.message}</p>
+                                    </div>
+                                )}
+
+                                {!clientsLoading && !clientsError && !selectedClient && !showTrainingPlanForm && !showDietPlanForm && (
                                     <div>
-                                        <h3 className="text-xl font-bold text-white mb-6">Lista Klientów</h3>
+                                        <h3 className="text-xl font-bold text-white mb-6">Lista Klientów ({clients.length})</h3>
                                         <div className="grid gap-4">
                                             {clients.map((client) => (
                                                 <div
-                                                    key={client.email}
+                                                    key={client.id}
                                                     className="bg-[#2a2a2a] rounded-lg p-4 hover:bg-[#333] transition-colors cursor-pointer"
                                                     onClick={() => setSelectedClient(client)}
                                                 >
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h4 className="text-lg font-semibold text-white">{client.name}</h4>
-                                                            <p className="text-gray-400">{client.email}</p>
+                                                            <h4 className="text-lg font-semibold text-white">{client.personalInfo.firstName} {client.personalInfo.lastName}</h4>
+                                                            <p className="text-gray-400">{client.personalInfo.email}</p>
                                                             <p className="text-sm text-gray-500">
-                                                                Rejestracja: {client.registrationDate}
+                                                                Rejestracja: {client.joinDate}
                                                             </p>
                                                         </div>
                                                         <div className="text-right">
                                                             <div className="flex space-x-2 mb-2">
-                                                                {client.trainingPlan && (
+                                                                {/* TODO: Check for training plans from API */}
+                                                                {/* {client.trainingPlan && (
                                                                     <span className="px-2 py-1 bg-green-600 text-white text-xs rounded">
                                                                         Plan treningowy
                                                                     </span>
-                                                                )}
-                                                                {client.dietPlan && (
+                                                                )} */}
+                                                                {/* TODO: Check for diet plans from API */}
+                                                                {/* {client.dietPlan && (
                                                                     <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
                                                                         Plan dietetyczny
                                                                     </span>
-                                                                )}
+                                                                )} */}
                                                             </div>
                                                             <ChevronRightIcon className="w-5 h-5 text-gray-400" />
                                                         </div>
@@ -593,7 +574,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                             >
                                                 ← Wróć
                                             </button>
-                                            <h3 className="text-xl font-bold text-white">Profil Klienta: {selectedClient.name}</h3>
+                                            <h3 className="text-xl font-bold text-white">Profil Klienta: {selectedClient.personalInfo.firstName} {selectedClient.personalInfo.lastName}</h3>
                                         </div>
 
                                         <div className="grid lg:grid-cols-2 gap-6">
@@ -601,9 +582,9 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                             <div className="bg-[#2a2a2a] rounded-lg p-6">
                                                 <h4 className="text-lg font-semibold text-red-500 mb-4">Informacje Podstawowe</h4>
                                                 <div className="space-y-2 text-gray-300">
-                                                    <p><strong>Email:</strong> {selectedClient.email}</p>
-                                                    <p><strong>Data rejestracji:</strong> {selectedClient.registrationDate}</p>
-                                                    <p><strong>Ostatnia aktywność:</strong> {selectedClient.lastActive}</p>
+                                                    <p><strong>Email:</strong> {selectedClient.personalInfo.email}</p>
+                                                    <p><strong>Data rejestracji:</strong> {selectedClient.joinDate}</p>
+                                                    <p><strong>Ostatnia aktywność:</strong> {selectedClient.lastActivity || 'Brak danych'}</p>
                                                 </div>
                                             </div>
 
@@ -633,21 +614,11 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                                         onClick={() => setShowTrainingPlanForm(true)}
                                                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
                                                     >
-                                                        {selectedClient.trainingPlan ? 'Edytuj' : 'Utwórz'}
+                                                        Utwórz Plan (TODO)
                                                     </button>
                                                 </div>
-                                                {selectedClient.trainingPlan ? (
-                                                    <div>
-                                                        <h5 className="font-semibold text-white">{selectedClient.trainingPlan.name}</h5>
-                                                        <p className="text-gray-400 text-sm">{selectedClient.trainingPlan.description}</p>
-                                                        <p className="text-gray-500 text-xs mt-2">
-                                                            Czas trwania: {selectedClient.trainingPlan.duration} | 
-                                                            Dni: {selectedClient.trainingPlan.days.length}
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-gray-400">Brak przypisanego planu treningowego</p>
-                                                )}
+                                                {/* TODO: Implement training plan display when API is ready */}
+                                                <p className="text-gray-400">Plany treningowe - do implementacji w API</p>
                                             </div>
 
                                             {/* Diet Plan */}
@@ -658,21 +629,11 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                                         onClick={() => setShowDietPlanForm(true)}
                                                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                                                     >
-                                                        {selectedClient.dietPlan ? 'Edytuj' : 'Utwórz'}
+                                                        Utwórz Plan (TODO)
                                                     </button>
                                                 </div>
-                                                {selectedClient.dietPlan ? (
-                                                    <div>
-                                                        <h5 className="font-semibold text-white">{selectedClient.dietPlan.name}</h5>
-                                                        <p className="text-gray-400 text-sm">{selectedClient.dietPlan.description}</p>
-                                                        <p className="text-gray-500 text-xs mt-2">
-                                                            Kalorie: {selectedClient.dietPlan.totalCalories} kcal | 
-                                                            Posiłki: {selectedClient.dietPlan.meals.length}
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-gray-400">Brak przypisanego planu dietetycznego</p>
-                                                )}
+                                                {/* TODO: Implement diet plan display when API is ready */}
+                                                <p className="text-gray-400">Plany dietetyczne - do implementacji w API</p>
                                             </div>
                                         </div>
                                     </div>
@@ -682,7 +643,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                     <TrainingPlanForm
                                         client={selectedClient}
                                         onSave={(plan) => {
-                                            saveTrainingPlan(selectedClient.email, plan);
+                                            saveTrainingPlan(selectedClient.personalInfo.email || selectedClient.id, plan);
                                             setShowTrainingPlanForm(false);
                                         }}
                                         onCancel={() => setShowTrainingPlanForm(false)}
@@ -693,7 +654,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                     <DietPlanForm
                                         client={selectedClient}
                                         onSave={(plan) => {
-                                            saveDietPlan(selectedClient.email, plan);
+                                            saveDietPlan(selectedClient.personalInfo.email || selectedClient.id, plan);
                                             setShowDietPlanForm(false);
                                         }}
                                         onCancel={() => setShowDietPlanForm(false)}
@@ -726,7 +687,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                             <div>
                                                 <p className="text-gray-400 text-sm">Plany treningowe</p>
                                                 <p className="text-2xl font-bold text-white">
-                                                    {clients.filter(c => c.trainingPlan).length}
+                                                    0 {/* TODO: Count training plans when API ready */}
                                                 </p>
                                             </div>
                                         </div>
@@ -740,7 +701,7 @@ const TrainerDashboard: React.FC<TrainerDashboardProps> = ({ isOpen, onClose }) 
                                             <div>
                                                 <p className="text-gray-400 text-sm">Plany dietetyczne</p>
                                                 <p className="text-2xl font-bold text-white">
-                                                    {clients.filter(c => c.dietPlan).length}
+                                                    0 {/* TODO: Count diet plans when API ready */}
                                                 </p>
                                             </div>
                                         </div>

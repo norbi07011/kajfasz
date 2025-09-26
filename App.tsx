@@ -13,7 +13,9 @@ import MultiStepDietModal from './components/MultiStepDietModal';
 import TrainerDashboard from './components/TrainerDashboard';
 import AdvancedDashboard from './components/AdvancedDashboard';
 import TrainerLoginModal from './components/TrainerLoginModal';
+import UnifiedLoginModal from './components/UnifiedLoginModal';
 import ProtectedTrainerRoute from './components/ProtectedTrainerRoute';
+import ApiTestComponent from './components/ApiTestComponent';
 import { useLanguage, useAuth, UserGoals, Goal, User } from './contexts/LanguageContext';
 import SocialLinks from './components/SocialLinks';
 import { CloseIcon, AnalyticsIcon, ChevronRightIcon, ListIcon } from './components/icons';
@@ -36,140 +38,6 @@ const FormInput: FC<{name: string, type: string, placeholder: string, value: str
     </div>
 );
 
-// --- AuthModal Component ---
-interface AuthModalProps {
-    onClose: () => void;
-}
-
-const AuthModal: FC<AuthModalProps> = ({ onClose }) => {
-    const { t } = useLanguage();
-    const { login, register } = useAuth();
-    const [view, setView] = useState<'login' | 'register1' | 'register2'>('login');
-    const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
-        name: '', email: '', password: '', confirmPassword: ''
-    });
-    const [goals, setGoals] = useState<UserGoals>({
-        weight: { current: 70, goal: 60, history: [] },
-        pushups: { current: 20, goal: 50, history: [] },
-        pullups: { current: 5, goal: 20, history: [] },
-        runDistance: { current: 3, goal: 10, history: [] },
-        runTime: { current: 30, goal: 25, history: [] },
-        boxingDuration: { current: 3, goal: 10, history: [] },
-    });
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleGoalChange = (category: keyof UserGoals, type: 'current' | 'goal', value: string) => {
-        const numValue = Number(value);
-        setGoals(prev => ({
-            ...prev,
-            [category]: { ...prev[category], [type]: numValue }
-        }));
-    };
-    
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        const success = login(formData.email, formData.password);
-        if (!success) {
-            setError(t('auth_modal.errors.invalid_credentials'));
-        }
-    };
-
-    const handleRegisterStep1 = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            setError(t('auth_modal.errors.password_mismatch'));
-            return;
-        }
-        setError('');
-        setView('register2');
-    };
-
-    const handleRegisterStep2 = (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        const initialGoals = JSON.parse(JSON.stringify(goals));
-        Object.keys(initialGoals).forEach(key => {
-            const typedKey = key as keyof UserGoals;
-            initialGoals[typedKey].history = [{ date: new Date().toISOString(), value: initialGoals[typedKey].current }];
-        });
-
-        const success = register(formData.name, formData.email, formData.password, initialGoals);
-        if (!success) {
-            setError(t('auth_modal.errors.user_exists'));
-            setView('register1');
-        }
-    };
-    
-    const renderGoalInput = (category: keyof UserGoals, title: string, unit: string) => (
-        <div className="grid grid-cols-2 gap-2 items-center">
-            <label className="text-sm text-gray-400">{title}</label>
-            <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder={t('goals.current')} value={goals[category].current} onChange={e => handleGoalChange(category, 'current', e.target.value)} className="w-full bg-[#333] border-gray-600 rounded-lg p-2 text-sm" />
-                <input type="number" placeholder={t('goals.goal')} value={goals[category].goal} onChange={e => handleGoalChange(category, 'goal', e.target.value)} className="w-full bg-[#333] border-gray-600 rounded-lg p-2 text-sm" />
-            </div>
-        </div>
-    );
-
-    return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-lg max-w-md w-full" onClick={e => e.stopPropagation()}>
-                <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold uppercase text-white font-['Teko']">
-                        {view === 'login' && t('auth_modal.login_title')}
-                        {view === 'register1' && t('auth_modal.register_title')}
-                        {view === 'register2' && t('auth_modal.goals_title')}
-                    </h2>
-                    <button 
-                        onClick={onClose} 
-                        className="text-gray-400 hover:text-white"
-                        aria-label="Close authentication modal"
-                        title="Close login/register dialog"
-                    >
-                        <CloseIcon className="h-6 w-6" />
-                    </button>
-                </div>
-                <div className="p-6">
-                    {error && <p className="bg-red-900/50 border border-red-500 text-red-300 text-center p-3 rounded-lg mb-4 text-sm">{error}</p>}
-                    {view === 'login' && (
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <FormInput name="email" type="email" placeholder={t('auth_modal.email')} value={formData.email} onChange={handleInputChange} required />
-                            <FormInput name="password" type="password" placeholder={t('auth_modal.password')} value={formData.password} onChange={handleInputChange} required />
-                            <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">{t('auth_modal.login_button')}</button>
-                            <p className="text-center text-sm text-gray-400">{t('auth_modal.no_account')} <button type="button" onClick={() => setView('register1')} className="font-semibold text-red-500 hover:underline">{t('auth_modal.register_now')}</button></p>
-                        </form>
-                    )}
-                    {view === 'register1' && (
-                        <form onSubmit={handleRegisterStep1} className="space-y-4">
-                            <FormInput name="name" type="text" placeholder={t('auth_modal.name')} value={formData.name} onChange={handleInputChange} required />
-                            <FormInput name="email" type="email" placeholder={t('auth_modal.email')} value={formData.email} onChange={handleInputChange} required />
-                            <FormInput name="password" type="password" placeholder={t('auth_modal.password')} value={formData.password} onChange={handleInputChange} required />
-                            <FormInput name="confirmPassword" type="password" placeholder={t('auth_modal.confirm_password')} value={formData.confirmPassword} onChange={handleInputChange} required />
-                            <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">{t('auth_modal.next_button')}</button>
-                            <p className="text-center text-sm text-gray-400">{t('auth_modal.have_account')} <button type="button" onClick={() => setView('login')} className="font-semibold text-red-500 hover:underline">{t('auth_modal.login_now')}</button></p>
-                        </form>
-                    )}
-                    {view === 'register2' && (
-                         <form onSubmit={handleRegisterStep2} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                             <p className="text-sm text-gray-300 mb-4">{t('auth_modal.goals_subtitle')}</p>
-                             {renderGoalInput('weight', t('goals.weight.title'), 'kg')}
-                             {renderGoalInput('pushups', t('goals.pushups.title'), 'reps')}
-                             {renderGoalInput('pullups', t('goals.pullups.title'), 'reps')}
-                             {renderGoalInput('runDistance', t('goals.runDistance.title'), 'km')}
-                             {renderGoalInput('runTime', t('goals.runTime.title'), 'min')}
-                             {renderGoalInput('boxingDuration', t('goals.boxingDuration.title'), 'min')}
-                             <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">{t('auth_modal.register_button')}</button>
-                         </form>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // --- Goal History Modal ---
 interface GoalHistoryModalProps {
@@ -410,7 +278,11 @@ const GoalCard: FC<{ title: string; unit: string; goalData: Goal; onUpdate: (new
     );
 };
 
-const Dashboard: FC = () => {
+interface DashboardProps {
+    onClose?: () => void;
+}
+
+const Dashboard: FC<DashboardProps> = ({ onClose }) => {
     const { currentUser, updateUser } = useAuth();
     const { t } = useLanguage();
     const [historyModalData, setHistoryModalData] = useState<{ title: string; history: Goal['history']; unit: string } | null>(null);
@@ -443,7 +315,15 @@ const Dashboard: FC = () => {
         <>
             <div className="min-h-screen pt-24 pb-12 dashboard-bg-new">
                 <div className="container mx-auto px-6">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-12 relative">
+                        {onClose && (
+                            <button 
+                                onClick={onClose}
+                                className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                            >
+                                Zamknij Panel
+                            </button>
+                        )}
                          <h1 className="text-4xl md:text-5xl font-black uppercase text-white font-['Teko']">{t('dashboard.welcome_message', { name: currentUser.name })}</h1>
                          <p className="text-gray-300 mt-2">{t('dashboard.subtitle')}</p>
                     </div>
@@ -479,8 +359,7 @@ const Dashboard: FC = () => {
 const App: React.FC = () => {
     const { currentUser } = useAuth();
     const [isDietModalOpen, setDietModalOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [isTrainerLoginModalOpen, setIsTrainerLoginModalOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isTrainerDashboardOpen, setIsTrainerDashboardOpen] = useState(false);
     const [isAdvancedDashboardOpen, setIsAdvancedDashboardOpen] = useState(false);
     const [view, setView] = useState<'landing' | 'dashboard'>('landing');
@@ -488,10 +367,8 @@ const App: React.FC = () => {
 
     useEffect(() => {
         if (currentUser) {
-            setIsAuthModalOpen(false);
-            setView('dashboard');
-        } else {
-            setView('landing');
+            setIsLoginModalOpen(false);
+            // Nie zmieniamy view - strona główna pozostaje dostępna
         }
     }, [currentUser]);
 
@@ -518,49 +395,51 @@ const App: React.FC = () => {
             <Header 
                 navLinks={navLinks} 
                 scrollTo={scrollTo} 
-                onLoginClick={() => setIsAuthModalOpen(true)}
+                onLoginClick={() => setIsLoginModalOpen(true)}
                 onDashboardClick={() => setIsAdvancedDashboardOpen(true)}
-                onTrainerLoginClick={() => setIsTrainerLoginModalOpen(true)}
+                onTrainerLoginClick={() => setIsLoginModalOpen(true)}
                 onTrainerDashboardClick={() => setIsTrainerDashboardOpen(true)}
                 onHomeClick={() => setView('landing')}
             />
             <SocialLinks />
             
-            {view === 'landing' ? (
-                 <main>
-                    <Hero onBookClick={() => scrollTo(bookingRef)} onDietClick={() => setDietModalOpen(true)} />
-                    <div ref={offerRef}><OfferSection /></div>
-                    <div ref={aboutRef}><AboutSection /></div>
-                    <div ref={philosophyRef}><ProcessSection /></div>
-                    <div ref={bookingRef}><BookingSection /></div>
-                </main>
-            ) : (
-                currentUser ? <Dashboard /> : null
+            <main>
+                <Hero onBookClick={() => scrollTo(bookingRef)} onDietClick={() => setDietModalOpen(true)} />
+                <div ref={offerRef}><OfferSection /></div>
+                <div ref={aboutRef}><AboutSection /></div>
+                <div ref={philosophyRef}><ProcessSection /></div>
+                <div ref={bookingRef}><BookingSection /></div>
+            </main>
+            
+            {/* Client Dashboard Modal */}
+            {isAdvancedDashboardOpen && currentUser && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#1a1a1a] rounded-xl w-full h-full max-w-7xl max-h-[95vh] overflow-auto">
+                        <Dashboard onClose={() => setIsAdvancedDashboardOpen(false)} />
+                    </div>
+                </div>
             )}
            
             <Footer />
             <MultiStepDietModal isOpen={isDietModalOpen} onClose={() => setDietModalOpen(false)} />
+            {/* Trainer Dashboard Modal */}
             <ProtectedTrainerRoute 
                 fallback={<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg text-center text-black">
-                        <h2 className="text-xl font-bold mb-4">Brak autoryzacji</h2>
-                        <p className="mb-4">Musisz być zalogowany jako trener aby uzyskać dostęp do panelu.</p>
+                    <div className="bg-[#1a1a1a] p-6 rounded-lg text-center border border-gray-700">
+                        <h2 className="text-xl font-bold mb-4 text-white">Brak autoryzacji</h2>
+                        <p className="mb-4 text-gray-300">Musisz być zalogowany jako trener aby uzyskać dostęp do panelu zarządzania.</p>
                         <button 
                             onClick={() => {
                                 setIsTrainerDashboardOpen(false);
-                                setIsAdvancedDashboardOpen(false);
-                                setIsTrainerLoginModalOpen(true);
+                                setIsLoginModalOpen(true);
                             }}
-                            className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mr-2 transition-colors"
                         >
-                            Zaloguj się
+                            Zaloguj jako trener
                         </button>
                         <button 
-                            onClick={() => {
-                                setIsTrainerDashboardOpen(false);
-                                setIsAdvancedDashboardOpen(false);
-                            }}
-                            className="bg-gray-600 text-white px-4 py-2 rounded"
+                            onClick={() => setIsTrainerDashboardOpen(false)}
+                            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
                         >
                             Zamknij
                         </button>
@@ -568,14 +447,23 @@ const App: React.FC = () => {
                 </div>}
             >
                 <TrainerDashboard isOpen={isTrainerDashboardOpen} onClose={() => setIsTrainerDashboardOpen(false)} />
-                <AdvancedDashboard isOpen={isAdvancedDashboardOpen} onClose={() => setIsAdvancedDashboardOpen(false)} />
             </ProtectedTrainerRoute>
-            {isAuthModalOpen && !currentUser && <AuthModal onClose={() => setIsAuthModalOpen(false)} />}
-            {isTrainerLoginModalOpen && <TrainerLoginModal 
-                isOpen={isTrainerLoginModalOpen} 
-                onClose={() => setIsTrainerLoginModalOpen(false)} 
-                onSuccess={() => setIsTrainerLoginModalOpen(false)} 
-            />}
+            <UnifiedLoginModal 
+                isOpen={isLoginModalOpen} 
+                onClose={() => setIsLoginModalOpen(false)} 
+                onSuccess={() => {
+                    setIsLoginModalOpen(false);
+                    // Po pomyślnym logowaniu strona główna pozostaje dostępna
+                    // Użytkownik może kliknąć przycisk dashboard w headerze
+                }} 
+            />
+            
+            {/* API Test Component - Development Only */}
+            {process.env.NODE_ENV === 'development' && (
+                <div className="fixed bottom-4 right-4 z-50">
+                    <ApiTestComponent />
+                </div>
+            )}
         </div>
     );
 };

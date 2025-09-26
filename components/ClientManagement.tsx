@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth, Client, ClientPersonalInfo, ClientGoals } from '../contexts/LanguageContext';
 import { CloseIcon, AnalyticsIcon, ChevronRightIcon, ListIcon } from './icons';
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from '../src/hooks/useClients';
+import type { ClientData } from '../src/api/types';
 
 interface ClientManagementProps {
     isOpen: boolean;
@@ -9,14 +11,15 @@ interface ClientManagementProps {
 
 const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) => {
     const { 
-        currentTrainer, 
-        clients, 
-        addClient, 
-        updateClient, 
-        deleteClient, 
-        getClientsByTrainer,
+        currentTrainer,
         addMeasurement 
     } = useAuth();
+    
+    // React Query hooks for API integration
+    const { data: clients = [], isLoading, error } = useClients(currentTrainer?.id);
+    const createClientMutation = useCreateClient();
+    const updateClientMutation = useUpdateClient();
+    const deleteClientMutation = useDeleteClient();
     
     const [view, setView] = useState<'list' | 'add' | 'view' | 'edit' | 'measurements'>('list');
     const [selectedClientId, setSelectedClientId] = useState<string>('');
@@ -62,8 +65,42 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) 
 
     if (!isOpen || !currentTrainer) return null;
 
-    const trainerClients = getClientsByTrainer(currentTrainer.id);
-    const selectedClient = selectedClientId ? clients.find(c => c.id === selectedClientId) : null;
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-8">
+                    <div className="flex items-center space-x-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+                        <span className="text-white">Ładowanie klientów...</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        return (
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-8">
+                    <div className="text-center">
+                        <h3 className="text-red-500 text-lg font-semibold mb-2">Błąd ładowania</h3>
+                        <p className="text-gray-400 mb-4">Nie udało się pobrać listy klientów</p>
+                        <button 
+                            onClick={onClose}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                        >
+                            Zamknij
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const trainerClients = clients.filter(client => client.trainerId === currentTrainer.id);
+    const selectedClient = selectedClientId ? trainerClients.find(c => c.id === selectedClientId) : null;
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -90,20 +127,19 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) 
         setMeasurementData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleAddClient = (e: React.FormEvent) => {
+    const handleAddClient = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const success = addClient({
-            personalInfo: formData.personalInfo,
-            goals: formData.goals,
-            status: 'active',
-            notes: formData.notes,
-            measurements: [],
-            workoutPlans: [],
-            nutritionPlans: []
-        });
+        try {
+            await createClientMutation.mutateAsync({
+                personalInfo: formData.personalInfo,
+                goals: formData.goals,
+                status: 'active',
+                notes: formData.notes,
+                measurements: [],
+                joinDate: new Date().toISOString()
+            });
 
-        if (success) {
             setView('list');
             // Reset form
             setFormData({
@@ -117,7 +153,8 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) 
                 },
                 notes: ''
             });
-        } else {
+        } catch (error) {
+            console.error('Error adding client:', error);
             alert('Błąd podczas dodawania klienta');
         }
     };
@@ -419,9 +456,10 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) 
                     </button>
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        disabled={createClientMutation.isPending}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                     >
-                        Dodaj Klienta
+                        {createClientMutation.isPending ? 'Dodawanie...' : 'Dodaj Klienta'}
                     </button>
                 </div>
             </form>
@@ -674,11 +712,11 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ isOpen, onClose }) 
                                             {measurement.bodyFat && (
                                                 <p className="text-gray-300">Tłuszcz: <span className="text-white">{measurement.bodyFat}%</span></p>
                                             )}
-                                            {measurement.measurements?.chest && (
-                                                <p className="text-gray-300">Klatka: <span className="text-white">{measurement.measurements.chest} cm</span></p>
+                                            {measurement.chest && (
+                                                <p className="text-gray-300">Klatka: <span className="text-white">{measurement.chest} cm</span></p>
                                             )}
-                                            {measurement.measurements?.waist && (
-                                                <p className="text-gray-300">Talia: <span className="text-white">{measurement.measurements.waist} cm</span></p>
+                                            {measurement.waist && (
+                                                <p className="text-gray-300">Talia: <span className="text-white">{measurement.waist} cm</span></p>
                                             )}
                                         </div>
                                         {measurement.notes && (

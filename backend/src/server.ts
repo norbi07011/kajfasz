@@ -16,7 +16,12 @@ import { authenticateToken, AuthenticatedRequest } from './middleware/auth.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 9999;
+const PORT = Number(process.env.PORT) || 8200;
+const HOST = process.env.HOST || '0.0.0.0';
+
+// Global error handlers
+process.on('uncaughtException', (e) => console.error('[uncaughtException]', e));
+process.on('unhandledRejection', (e) => console.error('[unhandledRejection]', e));
 
 // Security & CORS
 console.log('🛡️ Setting up security middleware...');
@@ -123,12 +128,20 @@ app.use('*', (req, res) => {
 
 console.log('💾 Shutdown handlers disabled for debugging');
 
-app.listen(PORT, () => {
-  console.log(`🚀 Kajfasz Backend API running on port ${PORT}`);
+// Global error handler (last middleware)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error('[express.error]', err);
+  res.status(500).json({ error: 'internal', detail: String(err?.message || err) });
+});
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`[server] listening on http://${HOST}:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📖 API Info: http://localhost:${PORT}/api`);
+  console.log(`🔗 Health check: http://${HOST}:${PORT}/health`);
+  console.log(`📖 API Info: http://${HOST}:${PORT}/api`);
 });
+server.on('error', (err) => console.error('[server.error]', err));
 
 export default app;
