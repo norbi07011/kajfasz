@@ -3,12 +3,17 @@ import { ChevronLeftIcon, ChevronRightIcon } from './icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const imageItems = [
-    { type: 'image', url: 'https://picsum.photos/seed/fighter1/600/800' },
-    { type: 'image', url: 'https://picsum.photos/seed/fighter2/600/800' },
-    { type: 'image', url: 'https://picsum.photos/seed/fighter3/600/800' },
-    { type: 'image', url: 'https://picsum.photos/seed/fighter4/600/800' },
-    { type: 'image', url: 'https://picsum.photos/seed/fighter5/600/800' },
-    { type: 'image', url: 'https://picsum.photos/seed/fighter6/600/800' },
+    { type: 'image', url: '/images/galeria zdjec  (1).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (2).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (3).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (4).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (5).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (6).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (7).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (8).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (9).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (10).jpg' },
+    { type: 'image', url: '/images/galeria zdjec  (11).jpg' },
 ];
 
 const videoItems = [
